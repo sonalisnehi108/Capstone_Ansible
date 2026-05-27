@@ -1,6 +1,9 @@
 pipeline {
     agent any
-
+    environment {
+        AWS_HOST = "ubuntu@3.239.23.15"
+        AZURE_HOST = "ubuntu@172.191.94.139"
+    }
     stages {
         stage('Checkout') {
             steps {
@@ -12,19 +15,23 @@ pipeline {
 
         stage('Deploy to AWS') {
             steps {
-                sh '''
-                sudo cp index-aws.html /var/www/html/index.html
-                sudo systemctl restart nginx
-                '''
+                sshagent(['aws-ssh-creds']) {
+                    sh '''
+                    scp index-aws.html $AWS_HOST:/var/www/html/index.html
+                    ssh $AWS_HOST "sudo systemctl restart nginx"
+                    '''
+                }
             }
         }
 
         stage('Deploy to Azure') {
             steps {
-                sh '''
-                sudo cp index-azure.html /var/www/html/index.html
-                sudo systemctl restart nginx
-                '''
+                sshagent(['azure-ssh-creds']) {
+                    sh '''
+                    scp index-azure.html $AZURE_HOST:/var/www/html/index.html
+                    ssh $AZURE_HOST "sudo systemctl restart nginx"
+                    '''
+                }
             }
         }
     }
