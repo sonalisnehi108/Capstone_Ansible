@@ -15,7 +15,7 @@ pipeline {
 
         stage('Deploy to AWS') {
             steps {
-                sshagent(['aws-ssh-creds']) {
+                sshagent(['shared-ssh-creds']) {
                     sh '''
                     scp index-aws.html $AWS_HOST:/var/www/html/index.html
                     ssh $AWS_HOST "sudo systemctl restart nginx"
@@ -26,7 +26,7 @@ pipeline {
 
         stage('Deploy to Azure') {
             steps {
-                sshagent(['azure-ssh-creds']) {
+                sshagent(['shared-ssh-creds']) {
                     sh '''
                     scp index-azure.html $AZURE_HOST:/var/www/html/index.html
                     ssh $AZURE_HOST "sudo systemctl restart nginx"
